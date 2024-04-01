@@ -144,13 +144,12 @@ const Settings = () => {
    const selectBoard = async (boardId) => {
       console.log('Activating ', boardId, "...");
       try {
-         const response = await fetch(`${apiURL}/setActiveKeyboard`, {
+         const response = await fetch(`${apiURL}/setActiveKeyboard/${boardId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             credentials: 'include',
-            body: JSON.stringify({ boardId }),
          });
          console.log(response);
          refreshBoards();

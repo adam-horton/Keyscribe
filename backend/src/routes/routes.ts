@@ -13,7 +13,7 @@ import {
   getSessionHandler,
 } from '../handlers/keyboard-handler';
 import { userInfoHandler, addFriend } from '../handlers/user-handler';
-import { authenticate, isAuthenticated } from './middleware';
+import { authenticate, isAuthenticated, boardOwnershipCheck } from './middleware';
 
 const router = Router();
 
@@ -33,20 +33,20 @@ router.get('/userLoggedIn', isAuthenticated);
 // KEYBOARD API
 router.get('/getKeyboards', isAuthenticated, getKeyboardsHandler);
 router.get('/getActiveKeyboard', isAuthenticated, getActiveHandler);
-router.get('/getSessionId', isAuthenticated, getSessionHandler);
-router.post('/setActiveKeyboard', isAuthenticated, setActiveHandler);
+router.get('/getSessionId/:boardId', isAuthenticated, boardOwnershipCheck, getSessionHandler);
+router.post('/setActiveKeyboard/:boardId', isAuthenticated, boardOwnershipCheck, setActiveHandler);
 router.post('/claim', isAuthenticated, claimKeyboard);
-router.post('/session/create', isAuthenticated, createSessionHandler);
-router.post('/session/join', isAuthenticated, joinSesssionHandler);
-router.delete('/session/leave', isAuthenticated, leaveSessionHandler);
+router.post('/session/create/:boardId', isAuthenticated, boardOwnershipCheck, createSessionHandler);
+router.post('/session/join/:boardId', isAuthenticated, boardOwnershipCheck, joinSesssionHandler);
+router.delete('/session/leave/:boardId', isAuthenticated, boardOwnershipCheck, leaveSessionHandler);
 router.delete('/session/close', isAuthenticated, closeSessionHandler);
 
 // FOR TESTING
 router.get('/ping', (req, res) => {
-  console.log("Ping Reached!");
+  console.log('Ping Reached!');
   return res.status(200).send(
-    {"message": "reached"}
+    { message: 'reached' },
   );
-})
+});
 
 export default router;

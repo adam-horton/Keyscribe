@@ -48,7 +48,7 @@ const Session = () => {
          .then((response) => response.json())
          .then((data) => { 
             setBoard(data);
-            return fetch(`${apiURL}/getSessionId?boardId=${data.id}`, {
+            return fetch(`${apiURL}/getSessionId/${data.id}`, {
                method: 'GET',
                credentials: 'include',
                headers: {

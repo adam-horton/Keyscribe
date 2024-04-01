@@ -1,4 +1,3 @@
-import { updateLanguageServiceSourceFile } from 'typescript';
 import { queryPool } from './db-setup';
 
 /**
@@ -60,6 +59,7 @@ const getOwner = async (pid: number): Promise<string> => {
    * Sets the user as the owner of the keyboard
    * @param userId The id of the user claiming the keyboard
    * @param hardwareId The hardware_id of the keyboard
+   * @param name The name of the keyboard
    * @returns True if successful
    */
 const setOwner = async (userId: string, hardwareId: number, name: string): Promise<number> => {
@@ -125,11 +125,10 @@ const getConnectedKeyboards = async (id: number): Promise<number[]> => {
  * @returns The ID of the new session
  */
 const createSession = async (userId: string, pid: number, name: string): Promise<number> => {
-  // Check to make sure keyboard isn't already in a session and belongs to the user
   const selectQuery = `
     SELECT session_id AS "sessionId"
     FROM keyboards
-    WHERE id = $1 AND owner = $2;
+    WHERE id = $1;
   `;
 
   const currentSession = await queryPool(selectQuery, [pid, userId]);
@@ -164,34 +163,33 @@ const createSession = async (userId: string, pid: number, name: string): Promise
  * @param sessionId The session ID of the session the user wants to join
  * @returns True if successful
  */
-const joinSession = async (userId: string, pid: number, sessionId: number): Promise<boolean> => {
+const joinSession = async (pid: number, sessionId: number): Promise<boolean> => {
   const query = `
     UPDATE keyboards
-    SET session_id = $3, role = 'student'
-    WHERE owner = $1 AND id = $2 AND ($3 IN (SELECT id FROM keyboard_sessions)) AND session_id IS NULL
+    SET session_id = $2, role = 'student'
+    WHERE id = $1 AND ($2 IN (SELECT id FROM keyboard_sessions)) AND session_id IS NULL
     RETURNING session_id AS "sessionId";
   `;
 
-  const result = await queryPool(query, [userId, pid, sessionId]);
+  const result = await queryPool(query, [pid, sessionId]);
 
   return result.rows.length === 1;
 };
 
 /**
  * Removes a keyboard from a session
- * @param userId The user trying to leave
  * @param pid The keyboard the user is trying to leave with
  * @returns True if successful
  */
-const leaveSession = async (userId: string, pid: number): Promise<boolean> => {
+const leaveSession = async (pid: number): Promise<boolean> => {
   const query = `
     UPDATE keyboards
     SET session_id = NULL, role = NULL
-    WHERE owner = $1 AND id = $2 AND session_id IS NOT NULL AND role != 'teacher'
+    WHERE id = $1 AND session_id IS NOT NULL AND role != 'teacher'
     RETURNING id;
   `;
 
-  const result = await queryPool(query, [userId, pid]);
+  const result = await queryPool(query, [pid]);
 
   return result.rows.length === 1;
 };
@@ -259,10 +257,10 @@ const setActiveKeyboard = async (userId: string, pid: number): Promise<boolean> 
   return result.rows.length >= 1;
 };
 
-const getSessionId = async (userId: string, boardId: number): Promise<number> => {
-  const query = 'SELECT session_id as "sessionId" FROM keyboards WHERE owner = $1 AND id = $2';
+const getSessionId = async (boardId: number): Promise<number> => {
+  const query = 'SELECT session_id as "sessionId" FROM keyboards WHERE id = $1';
 
-  const result = await queryPool(query, [userId, boardId]);
+  const result = await queryPool(query, [boardId]);
 
   return (result.rows.length === 0) ? -1 : result.rows[0].sessionId;
 };
