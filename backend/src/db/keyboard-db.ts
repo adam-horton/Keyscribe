@@ -265,6 +265,44 @@ const getSessionId = async (boardId: number): Promise<number> => {
   return (result.rows.length === 0) ? -1 : result.rows[0].sessionId;
 };
 
+const startRecording = async (boardId: number): Promise<boolean> => {
+  const query = 'UPDATE keyboards SET recording=\'true\' WHERE id=$1 AND recording=\'false\' RETURNING id;';
+
+  const result = await queryPool(query, [boardId]);
+
+  return result.rows.length === 1;
+};
+
+const stopRecording = async (boardId: number, userId: string, name: string): Promise<number> => {
+  // This query updates the recording status of the keyboard and creates a new recording entry.
+  // It will do neither if the keyboard is not currently recording
+  const query = `
+  WITH stop_recording AS (
+    UPDATE keyboards
+    SET recording='false'
+    WHERE id=$4 AND recording='true'
+    RETURNING $1 AS id
+  )
+  INSERT INTO recordings(id, name, creator)
+  SELECT id, $2, $3
+  FROM stop_recording
+  RETURNING id;`;
+
+  const newId = Math.floor(Math.random() * 99999999);
+
+  const result = await queryPool(query, [newId, name, userId, boardId]);
+
+  return (result.rows.length === 1) ? result.rows[0].id : -1;
+};
+
+const uploadFile = async (file: Buffer, recordingId: number): Promise<boolean> => {
+  const query = 'UPDATE recordings SET data=$1 WHERE id=$2 AND data IS NULL RETURNING id;';
+
+  const result = await queryPool(query, [file, recordingId]);
+
+  return result.rows.length === 1;
+};
+
 export {
   validateHardwareId,
   getPID,
@@ -280,4 +318,7 @@ export {
   getActiveKeyboard,
   setActiveKeyboard,
   getSessionId,
+  startRecording,
+  stopRecording,
+  uploadFile,
 };

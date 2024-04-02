@@ -1,8 +1,9 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { loginHandler, registerHandler, logoutHandler } from '../handlers/login-handler';
 import {
-  claimKeyboard,
-  authorizeKeyboard,
+  claimKeyboardHandler,
+  authorizeKeyboardHandler,
   createSessionHandler,
   joinSesssionHandler,
   closeSessionHandler,
@@ -11,14 +12,20 @@ import {
   getActiveHandler,
   setActiveHandler,
   getSessionHandler,
+  startRecordingHandler,
+  stopRecordingHandler,
+  uploadRecordingHandler,
 } from '../handlers/keyboard-handler';
 import { userInfoHandler, addFriend } from '../handlers/user-handler';
 import { authenticate, isAuthenticated, boardOwnershipCheck } from './middleware';
 
 const router = Router();
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-// KEYBOARD API
-router.get('/authorize', authorizeKeyboard);
+// FOR USE BY KEYBOARDS ONLY!
+router.get('/authorize', authorizeKeyboardHandler);
+router.post('/recordingUpload', upload.single('midi_file'), uploadRecordingHandler);
 
 // LOGIN/LOGOUT
 router.post('/login', authenticate, loginHandler);
@@ -35,7 +42,9 @@ router.get('/getKeyboards', isAuthenticated, getKeyboardsHandler);
 router.get('/getActiveKeyboard', isAuthenticated, getActiveHandler);
 router.get('/getSessionId/:boardId', isAuthenticated, boardOwnershipCheck, getSessionHandler);
 router.post('/setActiveKeyboard/:boardId', isAuthenticated, boardOwnershipCheck, setActiveHandler);
-router.post('/claim', isAuthenticated, claimKeyboard);
+router.post('/startRecording/:boardId', isAuthenticated, boardOwnershipCheck, startRecordingHandler);
+router.post('/stopRecording/:boardId', isAuthenticated, boardOwnershipCheck, stopRecordingHandler);
+router.post('/claim', isAuthenticated, claimKeyboardHandler);
 router.post('/session/create/:boardId', isAuthenticated, boardOwnershipCheck, createSessionHandler);
 router.post('/session/join/:boardId', isAuthenticated, boardOwnershipCheck, joinSesssionHandler);
 router.delete('/session/leave/:boardId', isAuthenticated, boardOwnershipCheck, leaveSessionHandler);

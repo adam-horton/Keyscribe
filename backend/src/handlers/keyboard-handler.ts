@@ -16,13 +16,16 @@ import {
   getActiveKeyboard,
   setActiveKeyboard,
   getSessionId,
+  startRecording,
+  stopRecording,
+  uploadFile,
 } from '../db/keyboard-db';
 import { sendMessageToRaspberryPi } from '../websockets/websocket-setup';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 const JWT_SECRET: string = process.env.JWT_SECRET!;
 
-const authorizeKeyboard = async (req: Request, res: Response) => {
+const authorizeKeyboardHandler = async (req: Request, res: Response) => {
   const hardwareIdString = req.query.hardwareId?.toString();
   if (hardwareIdString === undefined) {
     return res.status(400).send('Missing parameters');
@@ -64,7 +67,7 @@ const authorizeKeyboard = async (req: Request, res: Response) => {
  * Accepts the hardware ID of a Pi and claims it for the user,
  * sending the Pi a new JWT indicating its new owner.
  */
-const claimKeyboard = async (req: Request, res: Response) => {
+const claimKeyboardHandler = async (req: Request, res: Response) => {
   // User initiates request to claim an unclaimed keyboard
   const hardwareIdString = req.body.boardId?.toString();
   const name = req.body.name?.toString();
@@ -182,9 +185,53 @@ const getSessionHandler = async (req: Request, res: Response) => {
   return res.status(200).send(sessionId.toString());
 };
 
+const startRecordingHandler = async (req: Request, res: Response) => {
+  const boardId = parseInt(req.params.boardId, 10);
+
+  if (await startRecording(boardId)) {
+    sendMessageToRaspberryPi(boardId, 'rec', { rec: 'start' });
+    return res.status(200).send();
+  }
+
+  return res.status(400).send('Could not start recording');
+};
+
+const stopRecordingHandler = async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const boardId = parseInt(req.params.boardId, 10);
+  const name = req.body.name.toString();
+
+  if (name === undefined) {
+    return res.status(400).send('Missing parameters');
+  }
+
+  const recordingId = await stopRecording(boardId, userId, name);
+  if (recordingId !== -1) {
+    sendMessageToRaspberryPi(boardId, 'rec', { rec: 'stop', id: recordingId });
+    return res.status(200).send();
+  }
+
+  return res.status(400).send('Could not start recording');
+};
+
+const uploadRecordingHandler = async (req: Request, res: Response) => {
+  const file = req.file!.buffer;
+  const recordingId = parseInt(req.body.recordingId, 10);
+
+  if (Number.isNaN(recordingId)) {
+    return res.status(400).send('Invalid recordingId');
+  }
+
+  if (await uploadFile(file, recordingId)) {
+    return res.status(200).send();
+  }
+
+  return res.status(400).send('Internal error or invalid id');
+};
+
 export {
-  authorizeKeyboard,
-  claimKeyboard,
+  authorizeKeyboardHandler,
+  claimKeyboardHandler,
   createSessionHandler,
   joinSesssionHandler,
   leaveSessionHandler,
@@ -193,4 +240,7 @@ export {
   getActiveHandler,
   setActiveHandler,
   getSessionHandler,
+  startRecordingHandler,
+  stopRecordingHandler,
+  uploadRecordingHandler,
 };
