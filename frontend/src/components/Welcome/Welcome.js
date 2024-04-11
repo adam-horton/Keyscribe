@@ -107,7 +107,7 @@ const Welcome = () => {
          </NavBar>
          <UserWrapper className='user-wrapper'>
             <h1>Welcome, {name}!</h1>
-            <h2>Selected Board: {board.name}</h2>
+            <h2>Selected Board: {board.name ? board.name : 'N/A'}</h2>
          </UserWrapper>
          <Button type='button' top='0px' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={handleStart}>Start Session</Button>
          <Button type='button' top='0px' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={openJoin}>Join Session</Button>

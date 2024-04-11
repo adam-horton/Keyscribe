@@ -20,8 +20,8 @@ export const ListWrapper = styled.div`
     padding: 1%;
     display: flex;
     flex-direction: column;
-    // justify-content: center;
     align-items: center;
+    padding-top = 2%
 `;
 
 export const BoardNameWrapper = styled.div`
@@ -35,8 +35,4 @@ export const BoardNameWrapper = styled.div`
     &:hover {
         background: ${colors.light_bg};
     }
-`;
-
-export const CardHeader = styled.h1`
-    margin-top: 3%;
 `;
