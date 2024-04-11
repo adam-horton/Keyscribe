@@ -10,7 +10,7 @@ import passport from 'passport';
 import pgSessionSimple from 'connect-pg-simple';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { wsSetup } from './websockets/websocket-setup';
-import { validateLogin, getUserById } from './db/login-db';
+import { validateLogin, getUserById } from './db/user-db';
 import { getPool } from './db/db-setup';
 
 // ROUTES

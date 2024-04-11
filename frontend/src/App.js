@@ -7,6 +7,8 @@ import CreateAccount from './components/CreateAccount/CreateAccount';
 import Welcome from './components/Welcome/Welcome';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import { AuthProvider } from './components/AuthContext/AuthContext';
+import Settings from './components/Settings/Settings';
+import Session from './components/Session/Session';
 
 function App() {
   return (
@@ -19,7 +21,11 @@ function App() {
             <Route path="/welcome_teacher" element={<Keyboard />} />
             <Route path="/welcome_student" element={<Keyboard />} />
             <Route path="/welcome" element={<ProtectedRoute><Welcome /></ProtectedRoute>} />
+            {/* <Route path="/welcome" element={<Welcome />} /> */}
             <Route path="/create_account" element={<CreateAccount />} />
+            <Route path="/settings" element={<Settings />}></Route>
+            {/*                                            </Route> // TODO: Make it a ProtectedRoute */}
+            <Route path='/session' element={<Session />} />
           </Routes>
         </div>
       </AuthProvider>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CreateAccountWrapper, CreateAccountForm, FormField } from '../CreateAccount/CreateAccount.styled';
-import { Background, HeaderText, Button, Input } from '../Login/Login.styled';
+import { CreateAccountWrapper, CreateAccountForm } from '../CreateAccount/CreateAccount.styled';
+import { Background, HeaderText } from '../Login/Login.styled';
+import { colors, Button, Input, FormField } from '../../App.styled';
 
 const apiURL = process.env.REACT_APP_BACKEND_URL;
 
@@ -117,7 +118,7 @@ const CreateAccount = () => {
                      onChange={handleInputChange}
                   />
                </FormField>
-               <Button type="button" className="btn" onClick={handleSubmit}>Confirm</Button>
+               <Button type="button" className="btn" top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={handleSubmit}>Confirm</Button>
             </CreateAccountForm>
       </CreateAccountWrapper>
    );

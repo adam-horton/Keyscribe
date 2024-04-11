@@ -14,8 +14,5 @@
     "bugs": {
         "url": "https://github.com/adam-horton/website-template/issues"
     },
-    "homepage": "https://github.com/adam-horton/Keyscribe#readme",
-    "dependencies": {
-        "midi-writer-js": "^3.1.1"
-    }
+    "homepage": "https://github.com/adam-horton/Keyscribe#readme"
 }

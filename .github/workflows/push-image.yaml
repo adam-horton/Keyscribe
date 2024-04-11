@@ -1,0 +1,77 @@
+name: Build and Push to Azure Container Registry
+
+on:
+  push: 
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Extract and set SHA for tags
+      run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+    
+    - name: Set TAG variable
+      run: echo "TAG=${{ env.BRANCH }}-$(date "+%Y.%m.%d")-${{ env.SHA }}" >> $GITHUB_ENV
+
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: 'Login to Container Registry'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.AZURE_REGISTRY_SERVER_URL }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Build and push frontend to Azure
+      run: |
+        docker build -t ${{ secrets.AZURE_REGISTRY_SERVER_URL }}/frontend:${{ env.TAG }}  \
+                     -t ${{ secrets.AZURE_REGISTRY_SERVER_URL }}/frontend:${{ env.BRANCH }}-latest ./frontend
+        docker push --all-tags ${{ secrets.AZURE_REGISTRY_SERVER_URL }}/frontend
+  
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+
+    - name: Extract and set SHA for tags
+      run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+    
+    - name: Set TAG variable
+      run: echo "TAG=${{ env.BRANCH }}-$(date "+%Y.%m.%d")-${{ env.SHA }}" >> $GITHUB_ENV
+
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: 'Login to Container Registry'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.AZURE_REGISTRY_SERVER_URL }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Build and push backend to Azure
+      run: |
+        docker build -t ${{ secrets.AZURE_REGISTRY_SERVER_URL }}/backend:${{ env.TAG }}  \
+                     -t ${{ secrets.AZURE_REGISTRY_SERVER_URL }}/backend:${{ env.BRANCH }}-latest ./backend
+        docker push --all-tags ${{ secrets.AZURE_REGISTRY_SERVER_URL }}/backend
+

@@ -9,17 +9,26 @@ const AuthProvider = ({ children }) => {
    const [loading, setLoading] = useState(true);
 
    // This function is to prevent losing login status on referesh
-   useEffect(async () => {
-      const response = await fetch(`${apiURL}/userLoggedIn`);
-
-      if (response.ok) {
-         setIsAuthenticated(true);
-         setLoading(false);
-      }
-      else {
-         setIsAuthenticated(false);
-         setLoading(false);
-      }
+   useEffect(() => {
+      const fetchData = async () => {
+         try {
+            const response = await fetch(`${apiURL}/userLoggedIn`, {
+               method: 'GET',
+               credentials: 'include',
+            });
+            if (response.ok) {
+               setIsAuthenticated(true);
+               setLoading(false);
+            }
+            else {
+               setIsAuthenticated(false);
+               setLoading(false);
+            }
+         } catch(error) {
+            console.error(error);
+         }
+      };
+      fetchData();
    }, []);
 
    const login = async (username, password) => {
@@ -29,6 +38,7 @@ const AuthProvider = ({ children }) => {
             headers: {
             'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({ username, password }),
          });
 
@@ -37,7 +47,6 @@ const AuthProvider = ({ children }) => {
             return true;
          }
          else {
-            console.error('Invalid credentials');
             return false;
          }
       }
@@ -47,8 +56,18 @@ const AuthProvider = ({ children }) => {
       
    };
 
-   const logout = () => {
+   const logout = async () => {
+      console.log('AuthContext logout reached');
       setIsAuthenticated(false);
+      console.log(isAuthenticated);
+      try {
+         const response = await fetch(`${apiURL}/logout`);
+         if (!response.ok) {
+            console.error('Logout request failed.');
+         }
+      } catch(error) {
+         console.error('Error during logout: ', error);
+      }
    };
 
    return (
