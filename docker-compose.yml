@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # postgres:
   #   image: postgres:15.5-alpine
@@ -40,6 +38,8 @@ services:
       FRONTEND_CORS: http://nginx_frontend:80
     networks:
       - keyscribe_network
+    ports:
+      - "8000:8000"
 
   nginx_frontend:
     image: keyscribe.azurecr.io/frontend:latest
