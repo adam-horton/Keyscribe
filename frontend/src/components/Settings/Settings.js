@@ -144,7 +144,7 @@ const Settings = () => {
             <p>Last Name: {last}</p>
             <p>Username: {username}</p>
             <p>Email: {emailaddress}</p>
-            <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} disabled='true'>Edit</Button>
+            {/* <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} disabled='true'>Edit</Button> */}
          </ListWrapper>
          <ListWrapper className='boards-list'>
             <h1>My Boards</h1>
@@ -162,8 +162,8 @@ const Settings = () => {
             <p>song2</p>
             <p>song3</p>
             <p>song4</p>
-            <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} 
-               onClick={openFilesEdit} disabled={isCardOpen}>Edit</Button>
+            {/* <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} 
+               onClick={openFilesEdit} disabled={isCardOpen}>Edit</Button> */}
          </ListWrapper>
 
          {showBoardCard && (
