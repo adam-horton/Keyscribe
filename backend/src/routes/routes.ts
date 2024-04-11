@@ -15,6 +15,7 @@ import {
   startRecordingHandler,
   stopRecordingHandler,
   uploadRecordingHandler,
+  getRecordingHandler,
 } from '../handlers/keyboard-handler';
 import { userInfoHandler, addFriend } from '../handlers/user-handler';
 import { authenticate, isAuthenticated, boardOwnershipCheck } from './middleware';
@@ -41,6 +42,7 @@ router.get('/userLoggedIn', isAuthenticated);
 router.get('/getKeyboards', isAuthenticated, getKeyboardsHandler);
 router.get('/getActiveKeyboard', isAuthenticated, getActiveHandler);
 router.get('/getSessionId/:boardId', isAuthenticated, boardOwnershipCheck, getSessionHandler);
+router.get('/recording/:recordingId', isAuthenticated, getRecordingHandler);
 router.post('/setActiveKeyboard/:boardId', isAuthenticated, boardOwnershipCheck, setActiveHandler);
 router.post('/startRecording/:boardId', isAuthenticated, boardOwnershipCheck, startRecordingHandler);
 router.post('/stopRecording/:boardId', isAuthenticated, boardOwnershipCheck, stopRecordingHandler);

@@ -131,7 +131,7 @@ const createSession = async (userId: string, pid: number, name: string): Promise
     WHERE id = $1;
   `;
 
-  const currentSession = await queryPool(selectQuery, [pid, userId]);
+  const currentSession = await queryPool(selectQuery, [pid]);
   if (currentSession.rows[0].sessionId !== null) {
     return -1;
   }
@@ -281,10 +281,10 @@ const stopRecording = async (boardId: number, userId: string, name: string): Pro
     UPDATE keyboards
     SET recording='false'
     WHERE id=$4 AND recording='true'
-    RETURNING $1 AS id
+    RETURNING $1::integer AS recording_id
   )
   INSERT INTO recordings(id, name, creator)
-  SELECT id, $2, $3
+  SELECT recording_id, $2, $3
   FROM stop_recording
   RETURNING id;`;
 
@@ -302,6 +302,17 @@ const uploadFile = async (file: Buffer, recordingId: number): Promise<boolean> =
 
   return result.rows.length === 1;
 };
+
+const getRecording = async (recId: number, userId: string): Promise<{name: string|null, recording: string|null}> => {
+  const query = 'SELECT name, data FROM recordings WHERE creator = $1 AND id = $2';
+
+  const result = await queryPool(query, [userId, recId]);
+
+  if (result.rows.length === 1) {
+    return { name: result.rows[0].name, recording: result.rows[0].data.toString('base64') };
+  }
+  return { name: null, recording: null };
+}
 
 export {
   validateHardwareId,
@@ -321,4 +332,5 @@ export {
   startRecording,
   stopRecording,
   uploadFile,
+  getRecording,
 };

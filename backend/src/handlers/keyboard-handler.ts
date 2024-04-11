@@ -19,6 +19,7 @@ import {
   startRecording,
   stopRecording,
   uploadFile,
+  getRecording,
 } from '../db/keyboard-db';
 import { sendMessageToRaspberryPi } from '../websockets/websocket-setup';
 
@@ -199,15 +200,18 @@ const startRecordingHandler = async (req: Request, res: Response) => {
 const stopRecordingHandler = async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const boardId = parseInt(req.params.boardId, 10);
-  const name = req.body.name.toString();
+  const name = req.body.name;
 
   if (name === undefined) {
     return res.status(400).send('Missing parameters');
   }
 
-  const recordingId = await stopRecording(boardId, userId, name);
+  const nameString = name.toString();
+
+  const recordingId = await stopRecording(boardId, userId, nameString);
+  
   if (recordingId !== -1) {
-    sendMessageToRaspberryPi(boardId, 'rec', { rec: 'stop', id: recordingId });
+    sendMessageToRaspberryPi(boardId, 'rec', { rec: 'stop', recordingId: recordingId });
     return res.status(200).send();
   }
 
@@ -229,6 +233,25 @@ const uploadRecordingHandler = async (req: Request, res: Response) => {
   return res.status(400).send('Internal error or invalid id');
 };
 
+const getRecordingHandler = async (req: Request, res: Response) => {
+  const user = req.user!.id;
+  const recordingId = parseInt(req.params.recordingId, 10);
+
+  if (Number.isNaN(recordingId)) {
+    return res.status(400).send('Invalid recordingId');
+  }
+
+  const { name, recording } = await getRecording(recordingId, user);
+
+  if (recording && name) {
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${name}.mid"`);
+    return res.status(200).send(Buffer.from(recording, 'base64'));
+  }
+
+  return res.status(400).send('Internal error or invalid id');
+};
+
 export {
   authorizeKeyboardHandler,
   claimKeyboardHandler,
@@ -243,4 +266,5 @@ export {
   startRecordingHandler,
   stopRecordingHandler,
   uploadRecordingHandler,
+  getRecordingHandler,
 };
