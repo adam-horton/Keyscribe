@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext/AuthContext';
-import PropTypes from 'prop-types';
 import { SettingsWrapper, ListWrapper, BoardNameWrapper } from './Settings.styled';
 import { colors, NavBar, Button, Input, FormField, NavHeaderText, Card, CardButtonWrapper } from '../../App.styled';
 
@@ -60,8 +59,8 @@ const Settings = () => {
    }
 
    const [showBoardCard, setBoardShowCard] = useState(false);
-   const [showFriendCard, setFriendShowCard] = useState(false);
-   const isCardOpen = showBoardCard || showFriendCard;
+   const [showFilesEdit, setShowFilesEdit] = useState(false);
+   const isCardOpen = showBoardCard || showFilesEdit;
 
    const openBoardCard = async () => {
       setBoardShowCard(true);
@@ -71,12 +70,12 @@ const Settings = () => {
       setBoardShowCard(false);
    };
 
-   const openFriendCard = async () => {
-      setFriendShowCard(true);
+   const openFilesEdit = async () => {
+      setShowFilesEdit(true);
    };
 
-   const closeFriendCard = async () => {
-      setFriendShowCard(false);
+   const closeFilesEdit = async () => {
+      setShowFilesEdit(false);
    };
 
    const [boardData, setBoardData] = useState({
@@ -108,36 +107,6 @@ const Settings = () => {
       } catch(error) {
          console.error("Error adding board:", error);
          // TODO: Show error to user
-      }
-   };
-
-   const [friendData, setFriendData] = useState({
-      friendName: '',
-      friendEmail: '',
-   });
-
-   const handleFriendChange = (e) => {
-      const { name, value } = e.target;
-      setFriendData((prevData) => ({
-         ...prevData,
-         [name]: value,
-      }));
-      };
-
-   const confirmFriend = async () => {
-      console.log('Friend Data Submitted:', friendData);
-      try {
-         const response = await fetch(`${apiURL}/friend`, {
-            method: 'POST',
-            headers: {
-               'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify(friendData),
-         });
-         console.log(response);
-      } catch(error) {
-         console.error("Error adding friend:", error);
       }
    };
 
@@ -175,7 +144,7 @@ const Settings = () => {
             <p>Last Name: {last}</p>
             <p>Username: {username}</p>
             <p>Email: {emailaddress}</p>
-            <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover}>Edit</Button>
+            <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} disabled='true'>Edit</Button>
          </ListWrapper>
          <ListWrapper className='boards-list'>
             <h1>My Boards</h1>
@@ -187,14 +156,14 @@ const Settings = () => {
             <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover}
                onClick={openBoardCard} disabled={isCardOpen}>Claim Board</Button>
          </ListWrapper>
-         <ListWrapper className='friends-list'>
-            <h1>My Friends</h1>
-            <p>Bob Gator</p>
-            <p>Dr. Alex</p>
-            <p>Carsten</p>
-            <p>Anna</p>
+         <ListWrapper className='files-list'>
+            <h1>My Files</h1>
+            <p>song1</p>
+            <p>song2</p>
+            <p>song3</p>
+            <p>song4</p>
             <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} 
-               onClick={openFriendCard} disabled={isCardOpen}>Add Friend</Button>
+               onClick={openFilesEdit} disabled={isCardOpen}>Edit</Button>
          </ListWrapper>
 
          {showBoardCard && (
@@ -221,34 +190,6 @@ const Settings = () => {
                <CardButtonWrapper>
                   <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={closeBoardCard}>Cancel</Button>
                   <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={confirmBoard}>Confirm</Button>
-               </CardButtonWrapper>
-            </Card>
-         )}
-
-         {showFriendCard && (
-            <Card bg={colors.light_bg} w='45%' h='45%'>
-               <h2>Add Friend</h2>
-               <FormField>
-                  <Input
-                     type="text" 
-                     name="friendName"
-                     placeholder="Friend Name"
-                     value={friendData.friendName}
-                     onChange={handleFriendChange}
-                  />
-               </FormField>
-               <FormField>
-                  <Input
-                     type="text" 
-                     name="friendEmail"
-                     placeholder="Friend Email"
-                     value={friendData.friendEmail}
-                     onChange={handleFriendChange}
-                  />
-               </FormField>
-               <CardButtonWrapper>
-                  <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={closeFriendCard}>Cancel</Button>
-                  <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={confirmFriend}>Confirm</Button>
                </CardButtonWrapper>
             </Card>
          )}
