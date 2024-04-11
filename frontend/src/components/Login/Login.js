@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext/AuthContext'
-import { Container, Background, LoginForm, FormField, Button, HeaderText, Input, CreateAccountButton} from './Login.styled';
+import { Container, Background, HeaderText, LoginForm, FormField, CreateAccountButton} from './Login.styled';
+import { colors, Button, Input} from '../../App.styled';
 
 const Login = () => {
    const navigate = useNavigate();
@@ -37,6 +38,7 @@ const Login = () => {
                   placeholder="Username" 
                   value={username} 
                   onChange={(e) => setUsername(e.target.value)}
+                  indent="40px"
                />
             </FormField>
             <FormField>
@@ -46,9 +48,10 @@ const Login = () => {
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' ? handleLogin() : ''}
+                  indent="40px"
                />
             </FormField>
-            <Button type="button" className="btn" onClick={handleLogin}>Login</Button>
+            <Button type="button" className="btn" top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={handleLogin}>Login</Button>
             <CreateAccountButton onClick={handleCreateAccount}>Create Account</CreateAccountButton>
          </LoginForm>
       </Container>

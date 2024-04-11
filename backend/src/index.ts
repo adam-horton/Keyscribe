@@ -7,9 +7,11 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import session from 'express-session';
 import passport from 'passport';
+import pgSessionSimple from 'connect-pg-simple';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { wsSetup } from './websockets/websocket-setup';
-import { validateLogin, getUserById } from './db/login-db';
+import { validateLogin, getUserById } from './db/user-db';
+import { getPool } from './db/db-setup';
 
 // ROUTES
 import routes from './routes/routes';
@@ -26,7 +28,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../../frontend/build')));
 app.use(express.static(path.join(__dirname, '../../frontend/public')));
 app.use(cors());
+const PGSession = pgSessionSimple(session);
 app.use(session({
+  store: new PGSession({
+    pool: getPool(),
+    tableName: 'session',
+  }),
   secret: process.env.SESSION_SECRET!,
   resave: false,
   saveUninitialized: false,

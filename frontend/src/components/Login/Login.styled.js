@@ -13,13 +13,6 @@ export const Container = styled.div`
     padding: 0;
 `;
 
-export const HeaderText = styled.h1`
-    font-family: 'Marck Script', sans-serif;
-    color: #ffffff;
-    text-align: center;
-    margin-bottom: 20px;
-`
-
 export const Background = styled.div`
     background-image: url(${bgImg});
     position: fixed;
@@ -32,8 +25,18 @@ export const Background = styled.div`
 `
 
 export const LoginForm = styled.div`
+    display: flex;
+    flex-direction: column;
     width: 350px;
     position: relative;
+    justify-content: center;
+`;
+
+export const HeaderText = styled.h1`
+    font-family: 'Marck Script', sans-serif;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 20px;
 `;
 
 export const FormField = styled.div`
@@ -69,35 +72,7 @@ export const FormField = styled.div`
         top: 15px;
     }
 `;
-export const Input = styled.input`
-    font-family: inherit;
-    width: 100%;
-    outline: none;
-    background-color: #fff;
-    border-radius: 4px;
-    border: none;
-    display: block;
-    padding: 0.9rem 0.7rem;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-    font-size: 17px;
-    color: #4A4A4A;
-    text-indent: 40px;
-`;
 
-export const Button = styled.button`
-    outline: none;
-    border: none;
-    cursor: pointer;
-    display: inline-block;
-    margin: 0 auto;
-    padding: 0.9rem 2.5rem;
-    text-align: center;
-    background-color: #47AB11;
-    color: #fff;
-    border-radius: 4px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-    font-size: 17px;
-`
 export const CreateAccountButton = styled.button`
     outline: none;
     border: none;
@@ -109,5 +84,9 @@ export const CreateAccountButton = styled.button`
     background-color: transparent;
     text-decoration: underline;
     color: #2986cc;
-    font-size: 14 px;
+    font-size: 17px;
+
+    &:hover {
+        scale: 102%;
+    }
 `;

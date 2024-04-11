@@ -1,20 +1,38 @@
 import styled from 'styled-components';
-import Container from '@mui/material/Container'
+import { colors } from '../../App.styled';
 
 export const SettingsWrapper = styled.div`
+    width: 100vw;
+    height: 100vh;
+    background: ${colors.light_bg};
     display: flex;
     justify-content: center;
     align-items: center;
 `;
 
-export const UserInfoWrapper = styled(Container)`
-    justify-content: left;
+export const ListWrapper = styled.div`
+    border-radius: 25px;
+    background: ${colors.med_bg};
+    width: 18%;
+    height: 50%;
+    margin-left: 1%;
+    margin-right: 1%;
+    padding: 1%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 `;
 
-export const FriendsListWrapper = styled(Container)`
-    justify-content: right;
-`;
+export const BoardNameWrapper = styled.div`
+    border-radius: 25px;
+    background: ${props => props.selected ? colors.light_bg : colors.med_bg};
+    width: 70%;
+    height: 8%;
+    margin: 3% 1%;
+    padding-top: 2%;
 
-export const BoardsListWrapper = styled(Container)`
-    justify-content: left;
+    &:hover {
+        background: ${colors.light_bg};
+    }
 `;
