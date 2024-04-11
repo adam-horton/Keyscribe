@@ -20,7 +20,7 @@ export const ListWrapper = styled.div`
     padding: 1%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    // justify-content: center;
     align-items: center;
 `;
 
@@ -35,4 +35,8 @@ export const BoardNameWrapper = styled.div`
     &:hover {
         background: ${colors.light_bg};
     }
+`;
+
+export const CardHeader = styled.h1`
+    margin-top: 3%;
 `;

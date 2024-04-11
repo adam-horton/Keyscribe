@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext/AuthContext';
-import { SettingsWrapper, ListWrapper, BoardNameWrapper } from './Settings.styled';
+import { SettingsWrapper, ListWrapper, BoardNameWrapper, CardHeader } from './Settings.styled';
 import { colors, NavBar, Button, Input, FormField, NavHeaderText, Card, CardButtonWrapper } from '../../App.styled';
 
 const apiURL = process.env.REACT_APP_BACKEND_URL;
@@ -59,8 +59,7 @@ const Settings = () => {
    }
 
    const [showBoardCard, setBoardShowCard] = useState(false);
-   const [showFilesEdit, setShowFilesEdit] = useState(false);
-   const isCardOpen = showBoardCard || showFilesEdit;
+   const isCardOpen = showBoardCard;
 
    const openBoardCard = async () => {
       setBoardShowCard(true);
@@ -68,14 +67,6 @@ const Settings = () => {
 
    const closeBoardCard = async () => {
       setBoardShowCard(false);
-   };
-
-   const openFilesEdit = async () => {
-      setShowFilesEdit(true);
-   };
-
-   const closeFilesEdit = async () => {
-      setShowFilesEdit(false);
    };
 
    const [boardData, setBoardData] = useState({
