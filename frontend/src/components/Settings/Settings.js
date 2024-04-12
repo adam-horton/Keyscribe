@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext/AuthContext';
-import { SettingsWrapper, ListWrapper, BoardNameWrapper, CardHeader } from './Settings.styled';
+import { SettingsWrapper, ListWrapper, BoardNameWrapper, CardHeader, FilesButton } from './Settings.styled';
 import { colors, NavBar, Button, Input, FormField, NavHeaderText, Card, CardButtonWrapper } from '../../App.styled';
 
 const apiURL = process.env.REACT_APP_BACKEND_URL;
@@ -120,6 +120,19 @@ const Settings = () => {
       }
    };
 
+         // Get all X buttons
+      const deleteButtons = document.querySelectorAll('.files-list button');
+
+      // Add event listener to each X button
+      deleteButtons.forEach(button => {
+         if (button.textContent === "X") {
+         button.addEventListener('click', function() {
+            // Remove the parent <p> element when X button is clicked
+          this.parentElement.remove();
+         });
+      }
+    });
+
    return (
       <SettingsWrapper className='settings-wrapper'>
          <NavBar className='nav-bar'>
@@ -149,12 +162,10 @@ const Settings = () => {
          </ListWrapper>
          <ListWrapper className='files-list'>
             <h1>My Files</h1>
-            <p>song1</p>
-            <p>song2</p>
-            <p>song3</p>
-            <p>song4</p>
-            {/* <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} 
-               onClick={openFilesEdit} disabled={isCardOpen}>Edit</Button> */}
+            <p><button>X</button> song1 <button>↓</button></p>
+            <p><button>X</button> song2 <button>↓</button></p>
+            <p><button>X</button> song3 <button>↓</button></p>
+            <p><button>X</button> song4 <button>↓</button></p>
          </ListWrapper>
 
          {showBoardCard && (

@@ -36,3 +36,29 @@ export const BoardNameWrapper = styled.div`
         background: ${colors.light_bg};
     }
 `;
+
+export const FilesButton = styled.button`
+    outline: none;
+    border: none;
+    cursor: pointer;
+    display: block;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    background-color: ${({bg}) => bg};
+    color: ${({txt}) => txt};
+    border-radius: 25px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    font-size: 10px;
+    margin-right: 1%;
+    margin-left: 1%;
+    margin-top: ${({top}) => top};
+    
+    &:not(:disabled):hover {
+        background-color: ${({hbg}) => hbg};
+        scale: 101%;
+    }
+
+    &:disabled:hover {
+        cursor: not-allowed;
+    }
+`;
