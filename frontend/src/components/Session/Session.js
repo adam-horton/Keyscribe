@@ -12,6 +12,7 @@ const Session = () => {
    const [isRecording, setRecording] = useState(false);
    const [timer, setTimer] = useState(0);
    const [board, setBoard] = useState({ id: '', name: '' });
+   const [user, setUser] = useState({username: '', user_id: ''});
    const [sessionId, setSessionId] = useState('');
 
    const handleLeave = async() => {
@@ -33,32 +34,80 @@ const Session = () => {
       }
    }
 
-   const startRecord = () => {
-      setRecording(true);
-      console.log("Recording...");
+   const startRecord = async() => {
+      try {
+         const response = await fetch(`${apiURL}/startRecording/${board.id}`, {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({name: board.name}),
+         });
+         if (!response.ok) {
+            const errorMessage = await response.text();
+            throw new Error(errorMessage);
+         }
+         setRecording(true);
+         console.log("Recording...");
+      } catch (error) {
+         console.error("Error starting recording:", error);
+      }
    }
 
-   const stopRecord = () => {
-      setRecording(false);
-      console.log("Done Recording");
+   const stopRecord = async() => {
+      // WORKING ON THIS
+      try {
+         const response = await fetch(`${apiURL}/stopRecording/${board.id}`, {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+               boardId: board.id,
+               userId: user.user_id,
+               name: 'testFileName',
+            }),
+         });
+         if (!response.ok) {
+            const errorMessage = await response.text();
+            throw new Error(errorMessage);
+         }
+         setRecording(false);
+         console.log("Done Recording");
+      } catch (error) {
+         console.error("Error stopping recording:", error);
+      }
    }
 
    useEffect(() => {
-      fetch(`${apiURL}/getActiveKeyboard`)
-         .then((response) => response.json())
-         .then((data) => { 
-            setBoard(data);
-            return fetch(`${apiURL}/getSessionId/${data.id}`, {
+      const fetchData = async () => {
+         try {
+            const responseBoard = await fetch(`${apiURL}/getActiveKeyboard`, {
                method: 'GET',
                credentials: 'include',
-               headers: {
-               'Content-Type': 'application/json',
-               }
-            })
-         })
-         .then((response) => response.json())
-         .then((data) => setSessionId(data))
-         .catch((err) => console.error("Error getting active keyboard: ", err));
+            });
+            const dataBoard = await responseBoard.json();
+            setBoard(dataBoard);
+         
+            const responseID = await fetch(`${apiURL}/getSessionId/${dataBoard.id}`, {
+               method: 'GET',
+               credentials: 'include',
+            });
+            const dataID = await responseID.json();
+            setSessionId(dataID);
+
+            const responseUser = await fetch(`${apiURL}/getUserInfo`, {
+               method: 'GET',
+               credentials: 'include',
+            });
+            const dataUser = await responseUser.json();
+            setUser(dataUser);
+
+         } catch(error) {
+            console.error("Error fetching data: ", error);
+         }
+      };
+      fetchData();
 
       let interval;
       if (isRecording) {
