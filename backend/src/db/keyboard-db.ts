@@ -274,7 +274,6 @@ const startRecording = async (boardId: number): Promise<boolean> => {
 };
 
 const stopRecording = async (boardId: number, userId: string, name: string): Promise<number> => {
-  console.log("stopRecording reached");
   // This query updates the recording status of the keyboard and creates a new recording entry.
   // It will do neither if the keyboard is not currently recording
   const query = `

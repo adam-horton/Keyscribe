@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { SessionWrapper, InfoWrapper, ParticipantsWrapper, ColumnWrapper, LeaveContainer, RedCircle, RecordWrapper, Counter } from './Session.styled';
-import { colors, NavBar, NavHeaderText, Button } from '../../App.styled';
+import { Form, useNavigate } from 'react-router-dom';
+import { SessionWrapper, InfoWrapper, ParticipantsWrapper, ColumnWrapper, LeaveContainer, RedCircle, RecordWrapper, Counter, CardButtonWrapper } from './Session.styled';
+import { colors, NavBar, NavHeaderText, Button, Card, FormField, Input } from '../../App.styled';
 
 const apiURL = process.env.REACT_APP_BACKEND_URL;
 
@@ -14,6 +13,8 @@ const Session = () => {
    const [board, setBoard] = useState({ id: '', name: '' });
    const [user, setUser] = useState({username: '', user_id: ''});
    const [sessionId, setSessionId] = useState('');
+   const [showFileCard, setShowFileCard] = useState(false);
+   const [fileName, setFileName] = useState('DefaultFileName');
 
    const handleLeave = async() => {
       try {
@@ -54,8 +55,17 @@ const Session = () => {
       }
    }
 
+   const openFileCard = async() => {
+      setRecording(false);
+      setShowFileCard(true);
+   }
+
+   const closeFileCard = async() => {
+      setShowFileCard(false);
+      stopRecord();
+   }
+
    const stopRecord = async() => {
-      // WORKING ON THIS
       try {
          const response = await fetch(`${apiURL}/stopRecording/${board.id}`, {
             method: 'POST',
@@ -65,14 +75,13 @@ const Session = () => {
             body: JSON.stringify({
                boardId: board.id,
                userId: user.user_id,
-               name: 'testFileName',
+               name: fileName,
             }),
          });
          if (!response.ok) {
             const errorMessage = await response.text();
             throw new Error(errorMessage);
          }
-         setRecording(false);
          console.log("Done Recording");
       } catch (error) {
          console.error("Error stopping recording:", error);
@@ -135,7 +144,7 @@ const Session = () => {
          <NavBar>
             <NavHeaderText>Session in Progress</NavHeaderText>
             <LeaveContainer>
-               <Button bg={colors.med_bg} txt={colors.dark_txt} hbg={colors.light_hover} onClick={handleLeave}>Leave Session</Button>
+               <Button bg={colors.med_bg} txt={colors.dark_txt} hbg={colors.light_hover} onClick={handleLeave} disabled={showFileCard}>Leave Session</Button>
             </LeaveContainer>
          </NavBar>
          <ColumnWrapper>
@@ -149,12 +158,29 @@ const Session = () => {
             <RecordWrapper>
                {isRecording && (<RedCircle></RedCircle>)}
                {isRecording && (<Counter>{formatTime(timer)}</Counter>)}
-               <Button type='button' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} 
-                  onClick={isRecording ? stopRecord : startRecord}>
+               <Button type='button' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} disabled={showFileCard}
+                  onClick={isRecording ? openFileCard : startRecord}>
                      {isRecording ? 'Stop Recording' : 'Start Recording'}
                </Button>
             </RecordWrapper>
          </ColumnWrapper>
+         {showFileCard && (
+            <Card bg={colors.med_bg} w='25%' h='30%'>
+               <h2>Name Your MIDI File:</h2>
+               <FormField>
+                  <Input
+                     type="text" 
+                     name="fileName"
+                     placeholder="MyFile"
+                     value={fileName}
+                     onChange={(e) => setFileName(e.target.value)}
+                  />
+               </FormField>
+               <CardButtonWrapper>
+                  <Button top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={closeFileCard}>Confirm</Button>
+               </CardButtonWrapper>
+            </Card>
+         )}
       </SessionWrapper>
    );
    
