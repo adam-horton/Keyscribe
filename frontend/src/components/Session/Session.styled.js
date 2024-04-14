@@ -84,4 +84,12 @@ export const Counter = styled.div`
     color: ${colors.dark_txt};
 `;
 
+export const CardButtonWrapper = styled.div`
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    margin-top: 10%;
+    padding: 1%;
+`;
+
 <div style={{ position: 'absolute', top: 150, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}></div>

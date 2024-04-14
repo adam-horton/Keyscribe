@@ -55,12 +55,12 @@ const Welcome = () => {
 
    const handleStart = async() => {
       try {
-         const response = await fetch(`${apiURL}/session/create`, {
+         const response = await fetch(`${apiURL}/session/create/${board.id}`, {
             method: 'POST',
             headers: {
                'Content-Type': 'application/json',
             },
-            body: JSON.stringify(board),
+            body: JSON.stringify({name: board.name}),
          });
 
          if (!response.ok) {
@@ -74,14 +74,13 @@ const Welcome = () => {
    }
 
    const confirmJoin = async () => {
-      const response = await fetch(`${apiURL}/session/join`, {
+      const response = await fetch(`${apiURL}/session/join/${board.id}`, {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json',
          },
          body: JSON.stringify({ 
             sessionId: joinCode,
-            boardId: board.id
          }),
       });
 

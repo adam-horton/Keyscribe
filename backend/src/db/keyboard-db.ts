@@ -60,6 +60,7 @@ const getOwner = async (pid: number): Promise<string> => {
    * Sets the user as the owner of the keyboard
    * @param userId The id of the user claiming the keyboard
    * @param hardwareId The hardware_id of the keyboard
+   * @param name The name of the keyboard
    * @returns True if successful
    */
 const setOwner = async (userId: string, hardwareId: number, name: string): Promise<number> => {
@@ -125,14 +126,13 @@ const getConnectedKeyboards = async (id: number): Promise<number[]> => {
  * @returns The ID of the new session
  */
 const createSession = async (userId: string, pid: number, name: string): Promise<number> => {
-  // Check to make sure keyboard isn't already in a session and belongs to the user
   const selectQuery = `
     SELECT session_id AS "sessionId"
     FROM keyboards
-    WHERE id = $1 AND owner = $2;
+    WHERE id = $1;
   `;
 
-  const currentSession = await queryPool(selectQuery, [pid, userId]);
+  const currentSession = await queryPool(selectQuery, [pid]);
   if (currentSession.rows[0].sessionId !== null) {
     return -1;
   }
@@ -164,34 +164,33 @@ const createSession = async (userId: string, pid: number, name: string): Promise
  * @param sessionId The session ID of the session the user wants to join
  * @returns True if successful
  */
-const joinSession = async (userId: string, pid: number, sessionId: number): Promise<boolean> => {
+const joinSession = async (pid: number, sessionId: number): Promise<boolean> => {
   const query = `
     UPDATE keyboards
-    SET session_id = $3, role = 'student'
-    WHERE owner = $1 AND id = $2 AND ($3 IN (SELECT id FROM keyboard_sessions)) AND session_id IS NULL
+    SET session_id = $2, role = 'student'
+    WHERE id = $1 AND ($2 IN (SELECT id FROM keyboard_sessions)) AND session_id IS NULL
     RETURNING session_id AS "sessionId";
   `;
 
-  const result = await queryPool(query, [userId, pid, sessionId]);
+  const result = await queryPool(query, [pid, sessionId]);
 
   return result.rows.length === 1;
 };
 
 /**
  * Removes a keyboard from a session
- * @param userId The user trying to leave
  * @param pid The keyboard the user is trying to leave with
  * @returns True if successful
  */
-const leaveSession = async (userId: string, pid: number): Promise<boolean> => {
+const leaveSession = async (pid: number): Promise<boolean> => {
   const query = `
     UPDATE keyboards
     SET session_id = NULL, role = NULL
-    WHERE owner = $1 AND id = $2 AND session_id IS NOT NULL AND role != 'teacher'
+    WHERE id = $1 AND session_id IS NOT NULL AND role != 'teacher'
     RETURNING id;
   `;
 
-  const result = await queryPool(query, [userId, pid]);
+  const result = await queryPool(query, [pid]);
 
   return result.rows.length === 1;
 };
@@ -259,13 +258,62 @@ const setActiveKeyboard = async (userId: string, pid: number): Promise<boolean> 
   return result.rows.length >= 1;
 };
 
-const getSessionId = async (userId: string, boardId: number): Promise<number> => {
-  const query = 'SELECT session_id as "sessionId" FROM keyboards WHERE owner = $1 AND id = $2';
+const getSessionId = async (boardId: number): Promise<number> => {
+  const query = 'SELECT session_id as "sessionId" FROM keyboards WHERE id = $1';
 
-  const result = await queryPool(query, [userId, boardId]);
+  const result = await queryPool(query, [boardId]);
 
   return (result.rows.length === 0) ? -1 : result.rows[0].sessionId;
 };
+
+const startRecording = async (boardId: number): Promise<boolean> => {
+  const query = 'UPDATE keyboards SET recording=\'true\' WHERE id=$1 AND recording=\'false\' RETURNING id;';
+
+  const result = await queryPool(query, [boardId]);
+
+  return result.rows.length === 1;
+};
+
+const stopRecording = async (boardId: number, userId: string, name: string): Promise<number> => {
+  // This query updates the recording status of the keyboard and creates a new recording entry.
+  // It will do neither if the keyboard is not currently recording
+  const query = `
+  WITH stop_recording AS (
+    UPDATE keyboards
+    SET recording='false'
+    WHERE id=$4 AND recording='true'
+    RETURNING $1::integer AS recording_id
+  )
+  INSERT INTO recordings(id, name, creator)
+  SELECT recording_id, $2, $3
+  FROM stop_recording
+  RETURNING id;`;
+
+  const newId = Math.floor(Math.random() * 99999999);
+
+  const result = await queryPool(query, [newId, name, userId, boardId]);
+
+  return (result.rows.length === 1) ? result.rows[0].id : -1;
+};
+
+const uploadFile = async (file: Buffer, recordingId: number): Promise<boolean> => {
+  const query = 'UPDATE recordings SET data=$1 WHERE id=$2 AND data IS NULL RETURNING id;';
+
+  const result = await queryPool(query, [file, recordingId]);
+
+  return result.rows.length === 1;
+};
+
+const getRecording = async (recId: number, userId: string): Promise<{name: string|null, recording: string|null}> => {
+  const query = 'SELECT name, data FROM recordings WHERE creator = $1 AND id = $2';
+
+  const result = await queryPool(query, [userId, recId]);
+
+  if (result.rows.length === 1) {
+    return { name: result.rows[0].name, recording: result.rows[0].data.toString('base64') };
+  }
+  return { name: null, recording: null };
+}
 
 export {
   validateHardwareId,
@@ -282,4 +330,8 @@ export {
   getActiveKeyboard,
   setActiveKeyboard,
   getSessionId,
+  startRecording,
+  stopRecording,
+  uploadFile,
+  getRecording,
 };

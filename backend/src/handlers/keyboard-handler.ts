@@ -16,13 +16,17 @@ import {
   getActiveKeyboard,
   setActiveKeyboard,
   getSessionId,
+  startRecording,
+  stopRecording,
+  uploadFile,
+  getRecording,
 } from '../db/keyboard-db';
 import { sendMessageToRaspberryPi } from '../websockets/websocket-setup';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 const JWT_SECRET: string = process.env.JWT_SECRET!;
 
-const authorizeKeyboard = async (req: Request, res: Response) => {
+const authorizeKeyboardHandler = async (req: Request, res: Response) => {
   const hardwareIdString = req.query.hardwareId?.toString();
   if (hardwareIdString === undefined) {
     return res.status(400).send('Missing parameters');
@@ -64,7 +68,7 @@ const authorizeKeyboard = async (req: Request, res: Response) => {
  * Accepts the hardware ID of a Pi and claims it for the user,
  * sending the Pi a new JWT indicating its new owner.
  */
-const claimKeyboard = async (req: Request, res: Response) => {
+const claimKeyboardHandler = async (req: Request, res: Response) => {
   // User initiates request to claim an unclaimed keyboard
   const hardwareIdString = req.body.boardId?.toString();
   const name = req.body.name?.toString();
@@ -98,16 +102,15 @@ const claimKeyboard = async (req: Request, res: Response) => {
 };
 
 const createSessionHandler = async (req: Request, res: Response) => {
-
   const userId = req.user!.id;
-  const keyboardId = req.body.id;
-  const name = req.body.name;
+  const boardId = parseInt(req.params.boardId, 10);
+  const name = req.body.name.toString();
 
-  if (keyboardId === undefined || name === undefined) {
+  if (name === undefined) {
     return res.status(400).send('Missing parameters');
   }
 
-  const sessionId = await createSession(userId, keyboardId, name);
+  const sessionId = await createSession(userId, boardId, name);
 
   if (sessionId === -1) {
     return res.status(400).send('Keyboard already in session');
@@ -116,29 +119,23 @@ const createSessionHandler = async (req: Request, res: Response) => {
 };
 
 const joinSesssionHandler = async (req: Request, res: Response) => {
-  const userId = req.user!.id;
-  const keyboardId = req.body.boardId;
-  const sessionId = req.body.sessionId;
+  const boardId = parseInt(req.params.boardId, 10);
+  const sessionId = parseInt(req.body.sessionId, 10);
 
-  if (keyboardId === undefined || sessionId === undefined) {
-    return res.status(400).send('Missing parameters');
+  if (Number.isNaN(sessionId)) {
+    return res.status(400).send('Invalid sessionId');
   }
 
-  if (!await joinSession(userId, keyboardId, sessionId)) {
+  if (!await joinSession(boardId, sessionId)) {
     return res.status(400).send('Failed to join');
   }
   return res.status(200).send();
 };
 
 const leaveSessionHandler = async (req: Request, res: Response) => {
-  const userId = req.user!.id;
-  const keyboardId = req.body.boardId;
+  const boardId = parseInt(req.params.boardId, 10);
 
-  if (keyboardId === undefined) {
-    return res.status(400).send('Missing parameters');
-  }
-
-  if (!await leaveSession(userId, keyboardId)) {
+  if (!await leaveSession(boardId)) {
     return res.status(400).send('Failed to leave session');
   }
   return res.status(200).send();
@@ -146,10 +143,10 @@ const leaveSessionHandler = async (req: Request, res: Response) => {
 
 const closeSessionHandler = async (req: Request, res: Response) => {
   const userId = req.user!.id;
-  const sessionId = req.body.sessionId;
+  const sessionId = parseInt(req.body.sessionId, 10);
 
-  if (sessionId === undefined) {
-    return res.status(400).send('Missing parameters'); 
+  if (Number.isNaN(sessionId)) {
+    return res.status(400).send('Invalid sessionId');
   }
 
   if (!await closeSession(userId, sessionId)) {
@@ -170,11 +167,7 @@ const getActiveHandler = async (req: Request, res: Response) => {
 
 const setActiveHandler = async (req: Request, res: Response) => {
   const userId = req.user!.id;
-  const boardId = req.body.boardId;
-
-  if (boardId === undefined) {
-    return res.status(400).send('Missing parameters');
-  }
+  const boardId = parseInt(req.params.boardId, 10);
 
   if (await setActiveKeyboard(userId, boardId)) {
     return res.status(200).send();
@@ -183,28 +176,85 @@ const setActiveHandler = async (req: Request, res: Response) => {
 };
 
 const getSessionHandler = async (req: Request, res: Response) => {
-  const userId = req.user!.id;
-  const boardIdString = req.query.boardId?.toString();
+  const boardId = parseInt(req.params.boardId, 10);
 
-  if (boardIdString === undefined) {
-    return res.status(400).send('Missing parameters');
-  }
-  const boardId = parseInt(boardIdString, 10);
-  if (Number.isNaN(boardId)) {
-    return res.status(400).send('Invalid parameters');
-  }
+  const sessionId = await getSessionId(boardId);
 
-  const sessionId = await getSessionId(userId, boardId);
-
-  if (sessionId === -1){
+  if (sessionId === -1) {
     return res.status(400).send('Board not in session');
   }
   return res.status(200).send(sessionId.toString());
 };
 
+const startRecordingHandler = async (req: Request, res: Response) => {
+  const boardId = parseInt(req.params.boardId, 10);
+
+  if (await startRecording(boardId)) {
+    sendMessageToRaspberryPi(boardId, 'rec', { rec: 'start' });
+    return res.status(200).send();
+  }
+
+  return res.status(400).send('Could not start recording');
+};
+
+const stopRecordingHandler = async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const boardId = parseInt(req.params.boardId, 10);
+  const name = req.body.name;
+
+  if (name === undefined) {
+    return res.status(400).send('Missing parameters');
+  }
+
+  const nameString = name.toString();
+
+  const recordingId = await stopRecording(boardId, userId, nameString);
+  
+  if (recordingId !== -1) {
+    sendMessageToRaspberryPi(boardId, 'rec', { rec: 'stop', recordingId: recordingId });
+    return res.status(200).send();
+  }
+
+  return res.status(400).send('Could not start recording');
+};
+
+const uploadRecordingHandler = async (req: Request, res: Response) => {
+  const file = req.file!.buffer;
+  const recordingId = parseInt(req.body.recordingId, 10);
+
+  if (Number.isNaN(recordingId)) {
+    return res.status(400).send('Invalid recordingId');
+  }
+
+  if (await uploadFile(file, recordingId)) {
+    return res.status(200).send();
+  }
+
+  return res.status(400).send('Internal error or invalid id');
+};
+
+const getRecordingHandler = async (req: Request, res: Response) => {
+  const user = req.user!.id;
+  const recordingId = parseInt(req.params.recordingId, 10);
+
+  if (Number.isNaN(recordingId)) {
+    return res.status(400).send('Invalid recordingId');
+  }
+
+  const { name, recording } = await getRecording(recordingId, user);
+
+  if (recording && name) {
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${name}.mid"`);
+    return res.status(200).send(Buffer.from(recording, 'base64'));
+  }
+
+  return res.status(400).send('Internal error or invalid id');
+};
+
 export {
-  authorizeKeyboard,
-  claimKeyboard,
+  authorizeKeyboardHandler,
+  claimKeyboardHandler,
   createSessionHandler,
   joinSesssionHandler,
   leaveSessionHandler,
@@ -213,4 +263,8 @@ export {
   getActiveHandler,
   setActiveHandler,
   getSessionHandler,
+  startRecordingHandler,
+  stopRecordingHandler,
+  uploadRecordingHandler,
+  getRecordingHandler,
 };
