@@ -212,7 +212,7 @@ const stopRecordingHandler = async (req: Request, res: Response) => {
   
   if (recordingId !== -1) {
     sendMessageToRaspberryPi(boardId, 'rec', { rec: 'stop', recordingId: recordingId });
-    return res.status(200).send();
+    return res.status(200).json({ recordingId });
   }
 
   return res.status(400).send('Could not start recording');

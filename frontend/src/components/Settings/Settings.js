@@ -148,7 +148,6 @@ const Settings = () => {
             <p>Last Name: {last}</p>
             <p>Username: {username}</p>
             <p>Email: {emailaddress}</p>
-            {/* <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} disabled='true'>Edit</Button> */}
          </ListWrapper>
          <ListWrapper className='boards-list'>
             <h1>My Boards</h1>
@@ -162,10 +161,10 @@ const Settings = () => {
          </ListWrapper>
          <ListWrapper className='files-list'>
             <h1>My Files</h1>
-            <p><button>X</button> song1 <button>↓</button></p>
-            <p><button>X</button> song2 <button>↓</button></p>
-            <p><button>X</button> song3 <button>↓</button></p>
-            <p><button>X</button> song4 <button>↓</button></p>
+            <p><button>↓</button> song1 <button>X</button></p>
+            <p><button>↓</button> song2 <button>X</button></p>
+            <p><button>↓</button> song3 <button>X</button></p>
+            <p><button>↓</button> song4 <button>X</button></p>
          </ListWrapper>
 
          {showBoardCard && (

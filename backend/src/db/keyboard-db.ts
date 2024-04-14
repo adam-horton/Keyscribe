@@ -309,7 +309,7 @@ const getRecording = async (recId: number, userId: string): Promise<{name: strin
 
   const result = await queryPool(query, [userId, recId]);
 
-  if (result.rows.length === 1) {
+  if (result.rows.length === 1 && result.rows[0].data) {
     return { name: result.rows[0].name, recording: result.rows[0].data.toString('base64') };
   }
   return { name: null, recording: null };

@@ -14,7 +14,8 @@ const Session = () => {
    const [user, setUser] = useState({username: '', user_id: ''});
    const [sessionId, setSessionId] = useState('');
    const [showFileCard, setShowFileCard] = useState(false);
-   const [fileName, setFileName] = useState('DefaultFileName');
+   const [fileName, setFileName] = useState('');
+   const [recId, setRecId] = useState();
 
    const handleLeave = async() => {
       try {
@@ -82,11 +83,45 @@ const Session = () => {
             const errorMessage = await response.text();
             throw new Error(errorMessage);
          }
-         console.log("Done Recording");
+         const data = await response.json();
+         setRecId(data.recordingId);
       } catch (error) {
          console.error("Error stopping recording:", error);
       }
    }
+
+   useEffect(() => {
+      // Triggered when recId is updated to be able to fetch the file from the backend to download
+      const fetchData = async () => {
+         try {
+            // const response = await fetch(`${apiURL}/recording/${recId}/${user.user_id}`, {
+            const response = await fetch(`${apiURL}/recording/87004730/${user.user_id}`, {
+               method: 'GET',
+               credentials: 'include',
+            });
+            if (response.ok) {
+               const blob = await response.blob();
+               const midiBlob = new Blob([blob], { type: 'audio/midi' });
+               const url = window.URL.createObjectURL(midiBlob);
+               const a = document.createElement('a');
+               a.href = url;
+               a.download = fileName + '.midi';
+               document.body.appendChild(a);
+               a.click();
+               document.body.removeChild(a);
+               window.URL.revokeObjectURL(url);
+            } else {
+               console.error("Error:", response.status);
+            }
+         } catch(error) {
+            console.error("Error getting recording: ", error);
+         }
+      };
+      if (recId && (user.user_id !== '')) {
+         console.log("Done Recording", recId);
+         fetchData();
+      }
+   }, [recId]);
 
    useEffect(() => {
       const fetchData = async () => {
