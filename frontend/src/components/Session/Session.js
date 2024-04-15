@@ -167,7 +167,7 @@ const Session = () => {
             const dataUser = await responseUser.json();
             setUser(dataUser);
 
-            const responseRole = await fetch(`${apiURL}/getRole`, {
+            const responseRole = await fetch(`${apiURL}/role/${board.id}`, {
                method: 'GET',
                credentials: 'include',
             });
