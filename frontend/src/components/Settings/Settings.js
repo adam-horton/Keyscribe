@@ -159,13 +159,13 @@ const Settings = () => {
             <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover}
                onClick={openBoardCard} disabled={isCardOpen}>Claim Board</Button>
          </ListWrapper>
-         <ListWrapper className='files-list'>
+         {/* <ListWrapper className='files-list'>
             <h1>My Files</h1>
             <p><button>↓</button> song1 <button>X</button></p>
             <p><button>↓</button> song2 <button>X</button></p>
             <p><button>↓</button> song3 <button>X</button></p>
             <p><button>↓</button> song4 <button>X</button></p>
-         </ListWrapper>
+         </ListWrapper> */}
 
          {showBoardCard && (
             <Card raised='true' bg={colors.light_bg} w='45%' h='45%'>

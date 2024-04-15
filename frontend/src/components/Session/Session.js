@@ -94,8 +94,8 @@ const Session = () => {
       // Triggered when recId is updated to be able to fetch the file from the backend to download
       const fetchData = async () => {
          try {
-            // const response = await fetch(`${apiURL}/recording/${recId}/${user.user_id}`, {
-            const response = await fetch(`${apiURL}/recording/87004730/${user.user_id}`, {
+            const response = await fetch(`${apiURL}/recording/${recId}/${user.user_id}`, {
+            // const response = await fetch(`${apiURL}/recording/87004730/${user.user_id}`, {
                method: 'GET',
                credentials: 'include',
             });
@@ -187,9 +187,9 @@ const Session = () => {
                <h2>Invite Code: {sessionId}</h2>
                <h3>Active Board: {board.name}</h3>
             </InfoWrapper>
-            <ParticipantsWrapper>
+            {/* <ParticipantsWrapper>
                <h2>Participants:</h2>
-            </ParticipantsWrapper>
+            </ParticipantsWrapper> */}
             <RecordWrapper>
                {isRecording && (<RedCircle></RedCircle>)}
                {isRecording && (<Counter>{formatTime(timer)}</Counter>)}
