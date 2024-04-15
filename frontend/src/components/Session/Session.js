@@ -16,23 +16,43 @@ const Session = () => {
    const [showFileCard, setShowFileCard] = useState(false);
    const [fileName, setFileName] = useState('');
    const [recId, setRecId] = useState();
+   const [role, setRole] = useState('');
 
    const handleLeave = async() => {
-      try {
-         const response = await fetch(`${apiURL}/session/close`, {
-            method: 'DELETE',
-            headers: {
-               'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({sessionId: sessionId}), 
-         });
-         if (!response.ok) {
-            const errorMessage = await response.text();
-            throw new Error(errorMessage);
+      if (role == 'teacher') {
+         try {
+            const response = await fetch(`${apiURL}/session/close`, {
+               method: 'DELETE',
+               headers: {
+                  'Content-Type': 'application/json',
+               },
+               body: JSON.stringify({sessionId: sessionId}), 
+            });
+            if (!response.ok) {
+               const errorMessage = await response.text();
+               throw new Error(errorMessage);
+            }
+            navigate('/welcome');
+         } catch (error) {
+            console.error("Error ending session:", error);
          }
-         navigate('/welcome');
-      } catch (error) {
-         console.error("Error ending session:", error);
+      }
+      else if (role == 'student') {
+         try {
+            const response = await fetch(`${apiURL}/session/leave/${board.id}`, {
+               method: 'DELETE',
+               headers: {
+                  'Content-Type': 'application/json',
+               },
+            });
+            if (!response.ok) {
+               const errorMessage = await response.text();
+               throw new Error(errorMessage);
+            }
+            navigate('/welcome');
+         } catch (error) {
+            console.error("Error leaving session:", error);
+         }
       }
    }
 
@@ -146,6 +166,13 @@ const Session = () => {
             });
             const dataUser = await responseUser.json();
             setUser(dataUser);
+
+            const responseRole = await fetch(`${apiURL}/getRole`, {
+               method: 'GET',
+               credentials: 'include',
+            });
+            const dataRole = await responseRole.json();
+            setRole(dataRole);
 
          } catch(error) {
             console.error("Error fetching data: ", error);
