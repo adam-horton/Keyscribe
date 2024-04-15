@@ -19,6 +19,7 @@ const Session = () => {
    const [role, setRole] = useState('');
 
    const handleLeave = async() => {
+      console.log(role);
       if (role == 'teacher') {
          try {
             const response = await fetch(`${apiURL}/session/close`, {
@@ -95,7 +96,6 @@ const Session = () => {
             },
             body: JSON.stringify({
                boardId: board.id,
-               userId: user.user_id,
                name: fileName,
             }),
          });
@@ -114,7 +114,7 @@ const Session = () => {
       // Triggered when recId is updated to be able to fetch the file from the backend to download
       const fetchData = async () => {
          try {
-            const response = await fetch(`${apiURL}/recording/${recId}/${user.user_id}`, {
+            const response = await fetch(`${apiURL}/recording/${recId}`, {
             // const response = await fetch(`${apiURL}/recording/87004730/${user.user_id}`, {
                method: 'GET',
                credentials: 'include',
@@ -167,11 +167,11 @@ const Session = () => {
             const dataUser = await responseUser.json();
             setUser(dataUser);
 
-            const responseRole = await fetch(`${apiURL}/role/${board.id}`, {
+            const responseRole = await fetch(`${apiURL}/role/${dataBoard.id}`, {
                method: 'GET',
                credentials: 'include',
             });
-            const dataRole = await responseRole.json();
+            const dataRole = await responseRole.text();
             setRole(dataRole);
 
          } catch(error) {
