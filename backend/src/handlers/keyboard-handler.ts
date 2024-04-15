@@ -259,7 +259,7 @@ const getRoleHandler = async (req: Request, res: Response) => {
   const role = await getRole(boardId);
 
   if (role) {
-    return res.status(200).send({ role });
+    return res.status(200).send(role);
   }
 
   return res.status(400).send('No role assigned');

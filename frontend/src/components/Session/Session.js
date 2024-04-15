@@ -87,6 +87,27 @@ const Session = () => {
       stopRecord();
    }
 
+   const getRecording = async (recordingId) => {
+      const response2 = await fetch(`${apiURL}/recording/${recordingId}`, {
+            method: 'GET',
+            credentials: 'include',
+         });
+      if (response2.ok) {
+         const blob = await response2.blob();
+         const midiBlob = new Blob([blob], { type: 'audio/midi' });
+         const url = window.URL.createObjectURL(midiBlob);
+         const a = document.createElement('a');
+         a.href = url;
+         a.download = fileName + '.mid';
+         document.body.appendChild(a);
+         a.click();
+         document.body.removeChild(a);
+         window.URL.revokeObjectURL(url);
+      } else {
+         console.error("Error:", response2.status);
+      }
+   }
+
    const stopRecord = async() => {
       try {
          const response = await fetch(`${apiURL}/stopRecording/${board.id}`, {
@@ -105,43 +126,12 @@ const Session = () => {
          }
          const data = await response.json();
          setRecId(data.recordingId);
+
+         setTimeout(() => { getRecording(data.recordingId) }, 500);
       } catch (error) {
          console.error("Error stopping recording:", error);
       }
    }
-
-   useEffect(() => {
-      // Triggered when recId is updated to be able to fetch the file from the backend to download
-      const fetchData = async () => {
-         try {
-            const response = await fetch(`${apiURL}/recording/${recId}`, {
-            // const response = await fetch(`${apiURL}/recording/87004730/${user.user_id}`, {
-               method: 'GET',
-               credentials: 'include',
-            });
-            if (response.ok) {
-               const blob = await response.blob();
-               const midiBlob = new Blob([blob], { type: 'audio/midi' });
-               const url = window.URL.createObjectURL(midiBlob);
-               const a = document.createElement('a');
-               a.href = url;
-               a.download = fileName + '.midi';
-               document.body.appendChild(a);
-               a.click();
-               document.body.removeChild(a);
-               window.URL.revokeObjectURL(url);
-            } else {
-               console.error("Error:", response.status);
-            }
-         } catch(error) {
-            console.error("Error getting recording: ", error);
-         }
-      };
-      if (recId && (user.user_id !== '')) {
-         console.log("Done Recording", recId);
-         fetchData();
-      }
-   }, [recId]);
 
    useEffect(() => {
       const fetchData = async () => {

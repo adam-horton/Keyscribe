@@ -308,7 +308,7 @@ const getRecording = async (recId: number, userId: string): Promise<{ name: stri
   const query = 'SELECT name, data FROM recordings WHERE creator = $1 AND id = $2';
 
   const result = await queryPool(query, [userId, recId]);
-
+  
   if (result.rows.length === 1 && result.rows[0].data) {
     return { name: result.rows[0].name, recording: result.rows[0].data.toString('base64') };
   }

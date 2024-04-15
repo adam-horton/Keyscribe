@@ -44,7 +44,7 @@ router.get('/getKeyboards', isAuthenticated, getKeyboardsHandler);
 router.get('/getActiveKeyboard', isAuthenticated, getActiveHandler);
 router.get('/getSessionId/:boardId', isAuthenticated, boardOwnershipCheck, getSessionHandler);
 router.get('/role/:boardId', isAuthenticated, boardOwnershipCheck, getRoleHandler);
-router.get('/recording/:recordingId/:userId', isAuthenticated, getRecordingHandler);
+router.get('/recording/:recordingId', isAuthenticated, getRecordingHandler);
 router.post('/setActiveKeyboard/:boardId', isAuthenticated, boardOwnershipCheck, setActiveHandler);
 router.post('/startRecording/:boardId', isAuthenticated, boardOwnershipCheck, startRecordingHandler);
 router.post('/stopRecording/:boardId', isAuthenticated, boardOwnershipCheck, stopRecordingHandler);
