@@ -1,7 +1,7 @@
 import React, { useEffect, useState} from 'react';
 import { Form, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext/AuthContext';
-import { WelcomeWrapper, UserWrapper } from './Welcome.styled';
+import { WelcomeWrapper, UserWrapper, ButtonWrapper } from './Welcome.styled';
 import { colors, NavBar, Button, NavHeaderText, Card, FormField, Input, CardButtonWrapper } from '../../App.styled';
 
 const apiURL = process.env.REACT_APP_BACKEND_URL;
@@ -106,11 +106,17 @@ const Welcome = () => {
          </NavBar>
          <UserWrapper className='user-wrapper'>
             <h1>Welcome, {name}!</h1>
-            <h2>Selected Board: {board.name}</h2>
+            <h2>
+               Selected Board: {board.name ? board.name : <span style={{fontWeight: 'bold'}}>N/A</span>}
+               {!board.name && (
+                  <div style={{fontWeight: 'normal', fontSize: 'smaller'}}>*Add a board in settings to get started!</div>
+               )}
+            </h2>
          </UserWrapper>
-         <Button type='button' top='0px' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={handleStart}>Start Session</Button>
-         <Button type='button' top='0px' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={openJoin}>Join Session</Button>
-      
+         <ButtonWrapper>
+            <Button type='button' top='0px' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={handleStart}>Start Session</Button>
+            <Button type='button' top='0px' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={openJoin}>Join Session</Button>
+         </ButtonWrapper>
          {showJoinCard && (
             <Card bg={colors.med_bg} w='30%' h='35%'>
                <h1>Enter Code</h1>
@@ -130,6 +136,8 @@ const Welcome = () => {
             </Card>
          )}
 
+         <div style={{fontWeight: 'normal', fontSize: 'smaller'}}>Instructions: In order to connect and enjoy your Keyscribe Keyboard you must
+         first add a board, then start a session, and share the sessions to your students and friends!</div>
       </WelcomeWrapper>
    );
 };

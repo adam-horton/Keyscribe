@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext/AuthContext';
-import PropTypes from 'prop-types';
-import { SettingsWrapper, ListWrapper, BoardNameWrapper } from './Settings.styled';
+import { SettingsWrapper, ListWrapper, BoardNameWrapper, CardHeader, FilesButton } from './Settings.styled';
 import { colors, NavBar, Button, Input, FormField, NavHeaderText, Card, CardButtonWrapper } from '../../App.styled';
 
 const apiURL = process.env.REACT_APP_BACKEND_URL;
@@ -60,8 +59,7 @@ const Settings = () => {
    }
 
    const [showBoardCard, setBoardShowCard] = useState(false);
-   const [showFriendCard, setFriendShowCard] = useState(false);
-   const isCardOpen = showBoardCard || showFriendCard;
+   const isCardOpen = showBoardCard;
 
    const openBoardCard = async () => {
       setBoardShowCard(true);
@@ -69,14 +67,6 @@ const Settings = () => {
 
    const closeBoardCard = async () => {
       setBoardShowCard(false);
-   };
-
-   const openFriendCard = async () => {
-      setFriendShowCard(true);
-   };
-
-   const closeFriendCard = async () => {
-      setFriendShowCard(false);
    };
 
    const [boardData, setBoardData] = useState({
@@ -111,45 +101,16 @@ const Settings = () => {
       }
    };
 
-   const [friendData, setFriendData] = useState({
-      friendName: '',
-      friendEmail: '',
-   });
-
-   const handleFriendChange = (e) => {
-      const { name, value } = e.target;
-      setFriendData((prevData) => ({
-         ...prevData,
-         [name]: value,
-      }));
-      };
-
-   const confirmFriend = async () => {
-      console.log('Friend Data Submitted:', friendData);
-      try {
-         const response = await fetch(`${apiURL}/friend`, {
-            method: 'POST',
-            headers: {
-               'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify(friendData),
-         });
-         console.log(response);
-      } catch(error) {
-         console.error("Error adding friend:", error);
-      }
-   };
-
    const selectBoard = async (boardId) => {
       console.log('Activating ', boardId, "...");
       try {
-         const response = await fetch(`${apiURL}/setActiveKeyboard/${boardId}`, {
+         const response = await fetch(`${apiURL}/setActiveKeyboard`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             credentials: 'include',
+            body: JSON.stringify({ boardId }),
          });
          console.log(response);
          refreshBoards();
@@ -158,6 +119,19 @@ const Settings = () => {
          console.error("Error setting active board:", error);
       }
    };
+
+         // Get all X buttons
+      const deleteButtons = document.querySelectorAll('.files-list button');
+
+      // Add event listener to each X button
+      deleteButtons.forEach(button => {
+         if (button.textContent === "X") {
+         button.addEventListener('click', function() {
+            // Remove the parent <p> element when X button is clicked
+          this.parentElement.remove();
+         });
+      }
+    });
 
    return (
       <SettingsWrapper className='settings-wrapper'>
@@ -174,7 +148,6 @@ const Settings = () => {
             <p>Last Name: {last}</p>
             <p>Username: {username}</p>
             <p>Email: {emailaddress}</p>
-            <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover}>Edit</Button>
          </ListWrapper>
          <ListWrapper className='boards-list'>
             <h1>My Boards</h1>
@@ -186,15 +159,13 @@ const Settings = () => {
             <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover}
                onClick={openBoardCard} disabled={isCardOpen}>Claim Board</Button>
          </ListWrapper>
-         <ListWrapper className='friends-list'>
-            <h1>My Friends</h1>
-            <p>Bob Gator</p>
-            <p>Dr. Alex</p>
-            <p>Carsten</p>
-            <p>Anna</p>
-            <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} 
-               onClick={openFriendCard} disabled={isCardOpen}>Add Friend</Button>
-         </ListWrapper>
+         {/* <ListWrapper className='files-list'>
+            <h1>My Files</h1>
+            <p><button>↓</button> song1 <button>X</button></p>
+            <p><button>↓</button> song2 <button>X</button></p>
+            <p><button>↓</button> song3 <button>X</button></p>
+            <p><button>↓</button> song4 <button>X</button></p>
+         </ListWrapper> */}
 
          {showBoardCard && (
             <Card raised='true' bg={colors.light_bg} w='45%' h='45%'>
@@ -220,34 +191,6 @@ const Settings = () => {
                <CardButtonWrapper>
                   <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={closeBoardCard}>Cancel</Button>
                   <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={confirmBoard}>Confirm</Button>
-               </CardButtonWrapper>
-            </Card>
-         )}
-
-         {showFriendCard && (
-            <Card bg={colors.light_bg} w='45%' h='45%'>
-               <h2>Add Friend</h2>
-               <FormField>
-                  <Input
-                     type="text" 
-                     name="friendName"
-                     placeholder="Friend Name"
-                     value={friendData.friendName}
-                     onChange={handleFriendChange}
-                  />
-               </FormField>
-               <FormField>
-                  <Input
-                     type="text" 
-                     name="friendEmail"
-                     placeholder="Friend Email"
-                     value={friendData.friendEmail}
-                     onChange={handleFriendChange}
-                  />
-               </FormField>
-               <CardButtonWrapper>
-                  <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={closeFriendCard}>Cancel</Button>
-                  <Button type='button' top='auto' bg={colors.dark_bg} txt={colors.light_txt} hbg={colors.dark_hover} onClick={confirmFriend}>Confirm</Button>
                </CardButtonWrapper>
             </Card>
          )}

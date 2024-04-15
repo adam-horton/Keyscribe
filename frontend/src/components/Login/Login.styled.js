@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import bgImg from '../../assets/background.jpg'
+import bgImg from '../../assets/tinted_background.jpg'
 import user from '../../assets/user-icon.png'
 import lock from '../../assets/lock-icon.png'
 
