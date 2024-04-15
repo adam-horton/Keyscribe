@@ -20,6 +20,7 @@ import {
   stopRecording,
   uploadFile,
   getRecording,
+  getRole,
 } from '../db/keyboard-db';
 import { sendMessageToRaspberryPi } from '../websockets/websocket-setup';
 
@@ -200,7 +201,7 @@ const startRecordingHandler = async (req: Request, res: Response) => {
 const stopRecordingHandler = async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const boardId = parseInt(req.params.boardId, 10);
-  const name = req.body.name;
+  const { name } = req.body;
 
   if (name === undefined) {
     return res.status(400).send('Missing parameters');
@@ -209,9 +210,9 @@ const stopRecordingHandler = async (req: Request, res: Response) => {
   const nameString = name.toString();
 
   const recordingId = await stopRecording(boardId, userId, nameString);
-  
+
   if (recordingId !== -1) {
-    sendMessageToRaspberryPi(boardId, 'rec', { rec: 'stop', recordingId: recordingId });
+    sendMessageToRaspberryPi(boardId, 'rec', { rec: 'stop', recordingId });
     return res.status(200).send();
   }
 
@@ -252,6 +253,18 @@ const getRecordingHandler = async (req: Request, res: Response) => {
   return res.status(400).send('Internal error or invalid id');
 };
 
+const getRoleHandler = async (req: Request, res: Response) => {
+  const boardId = parseInt(req.params.boardId, 10);
+
+  const role = await getRole(boardId);
+
+  if (role) {
+    return res.status(200).send({ role });
+  }
+
+  return res.status(400).send('No role assigned');
+};
+
 export {
   authorizeKeyboardHandler,
   claimKeyboardHandler,
@@ -267,4 +280,5 @@ export {
   stopRecordingHandler,
   uploadRecordingHandler,
   getRecordingHandler,
+  getRoleHandler,
 };

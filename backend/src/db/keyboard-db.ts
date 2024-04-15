@@ -303,7 +303,7 @@ const uploadFile = async (file: Buffer, recordingId: number): Promise<boolean> =
   return result.rows.length === 1;
 };
 
-const getRecording = async (recId: number, userId: string): Promise<{name: string|null, recording: string|null}> => {
+const getRecording = async (recId: number, userId: string): Promise<{ name: string | null, recording: string | null }> => {
   const query = 'SELECT name, data FROM recordings WHERE creator = $1 AND id = $2';
 
   const result = await queryPool(query, [userId, recId]);
@@ -312,7 +312,19 @@ const getRecording = async (recId: number, userId: string): Promise<{name: strin
     return { name: result.rows[0].name, recording: result.rows[0].data.toString('base64') };
   }
   return { name: null, recording: null };
-}
+};
+
+const getRole = async (boardId: number): Promise<string | null> => {
+  const query = 'SELECT role FROM keyboards WHERE id=$1';
+
+  const result = await queryPool(query, [boardId]);
+
+  if (result.rows.length === 1) {
+    return result.rows[0].role;
+  }
+
+  return null;
+};
 
 export {
   validateHardwareId,
@@ -333,4 +345,5 @@ export {
   stopRecording,
   uploadFile,
   getRecording,
+  getRole,
 };
