@@ -3,16 +3,17 @@
     "version": "0.0.0",
     "description": "UF Senior Design Project Repo",
     "scripts": {
-        "test": "echo \"Individual tests included in each module\" && exit 1"
+      "test": "echo \"Individual tests included in each module\" && exit 1"
     },
     "repository": {
-        "type": "git",
-        "url": "git+https://github.com/adam-horton/Keyscribe.git"
+      "type": "git",
+      "url": "git+https://github.com/adam-horton/Keyscribe.git"
     },
     "author": "Keyscribe Team",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/adam-horton/website-template/issues"
+      "url": "https://github.com/adam-horton/website-template/issues"
     },
     "homepage": "https://github.com/adam-horton/Keyscribe#readme"
-}
+  }
+  
