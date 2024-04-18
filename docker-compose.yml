@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+  # postgres:
+  #   image: postgres:15.5-alpine
+  #   container_name: postgres
+  #   environment:
+  #     POSTGRES_DB: ks_db
+  #     POSTGRES_USER: keyscribe
+  #     POSTGRES_PASSWORD: K3yscr1b3
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql:ro
+  #     - ./backend/dbbackup.sql:/docker-entrypoint-initdb.d/dbexport.sql
+  #   ports:
+  #     - 5432:5432
+  #   networks:
+  #   - keyscribe_network
+
+  # frontend: 
+  #   build: ./frontend
+  #   container_name: frontend_container
+  #   environment:
+  #     REACT_APP_BACKEND_URL: http://backend:8000/api
+  #   ports:
+  #     - 3000
+  #   networks:
+  #     - keyscribe_network
+  
+  backend:
+    image: keyscribe.azurecr.io/backend:latest
+    container_name: backend_container
+    environment:
+      NODE_ENV: production
+      PORT: 8000
+      DEV_BACKEND: backend:8000
+      JWT_SECRET: 'super_special_secret'
+      SESSION_SECRET: 'super_special_secret_session'
+      DB_PASSWORD: 'K3yscr1b3'
+      DB_HOST: '52.168.92.118'
+      FRONTEND_CORS: http://nginx_frontend:80
+    networks:
+      - keyscribe_network
+
+  nginx_frontend:
+    image: keyscribe.azurecr.io/frontend:latest
+    container_name: nginx_container
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend/nginx/keys:/etc/nginx/keys/
+    depends_on:
+      - backend 
+    networks:
+      - keyscribe_network
+
+volumes:
+  postgres_data: {}
+
+networks:
+  keyscribe_network:
+    driver: bridge

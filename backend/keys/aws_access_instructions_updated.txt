@@ -1,0 +1,6 @@
+# Connecting to AWS EC2 instance via SSH
+ssh -i aws-ks2023.pem ec2-user@ec2-3-86-40-33.compute-1.amazonaws.com
+
+# Connecting to database with psql
+psql -U keyscribe -h 127.0.0.1 -h ks_db
+# Password when prompted is K3yscr1b3

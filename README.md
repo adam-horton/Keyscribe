@@ -1,6 +1,15 @@
 # Keyscribe
 UF Senior Design Project Repo
 
+## Starting our Production Application
+```bash
+cd frontend
+npm run build
+cd ../backend
+npm run build
+npm run star
+```
+
 ## Repo Workflow
 - Development occurs locally on a feature branch.
 - Your feature branch can be pushed to github using:
